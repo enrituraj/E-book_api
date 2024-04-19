@@ -56,10 +56,52 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
             },
         )
 
-        res.json({ accessToken: jwtToken })
+        res.status(201).json({ accessToken: jwtToken })
     } catch (error) {
         return next(createHttpError(500, "error at signing the token"))
     }
 }
 
-export { createUser }
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+    // data
+    const { email, password } = req.body
+    if (!email || !password) {
+        return next(createHttpError(400, "Please enter a valid email & pasword."))
+    }
+
+    // matching the data
+    try {
+        const user = await userModel.findOne({ email })
+        if (!user) {
+            return next(createHttpError(404, "User not found !!"))
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password)
+
+        if (!isMatch) {
+            return next(createHttpError(400, "Email or password incorrect."))
+        }
+
+        // generating jwt
+
+        try {
+            const jwtToken = sign(
+                {
+                    sub: user._id,
+                },
+                config.jwtSecret as string,
+                {
+                    expiresIn: "7d",
+                },
+            )
+
+            res.status(201).json({ accessToken: jwtToken })
+        } catch (error) {
+            return next(createHttpError(500, "error at signing the token"))
+        }
+    } catch (error) {
+        return next(createHttpError(500, "Error at fetching user data"))
+    }
+}
+
+export { createUser, loginUser }
