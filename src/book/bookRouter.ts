@@ -1,6 +1,6 @@
 import express from "express"
 const bookRouter = express.Router()
-import { createBook, updateBook } from "./bookController"
+import { createBook, updateBook,getBooks } from "./bookController"
 import multer from "multer"
 import path from "node:path"
 import authenicate from "../middlewares/authenticate"
@@ -9,6 +9,11 @@ const upload = multer({
     dest: path.resolve(__dirname, "../../public/data/uploads"),
     limits: { fieldSize: 3e7 },
 })
+
+bookRouter.get(
+    "/",
+    getBooks
+)
 
 bookRouter.post(
     "/",

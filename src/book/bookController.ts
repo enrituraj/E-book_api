@@ -6,6 +6,17 @@ import bookModel from "./bookModel"
 import fs from "node:fs"
 import { AuthRequest } from "../middlewares/authenticate"
 
+const getBooks = async(req:Request,res:Response,next:NextFunction) =>{
+
+    try {
+        const books = await bookModel.find()
+        res.json(books)
+    } catch (error) {
+        return next(createHttpError(500, "error in fetching books."))
+    }
+
+}
+
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { title, genre } = req.body
@@ -157,4 +168,4 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
     res.json(updatedBook)
 }
 
-export { createBook, updateBook }
+export { createBook, updateBook,getBooks }
